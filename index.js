@@ -4,7 +4,7 @@ const rollup = require('rollup')
 const { babel } = require('@rollup/plugin-babel')
 const { resolve } = require('path')
 const { white, red, green } = require('kleur')
-const logSymbols = require('log-symbols')
+const { logcons } = require('logcons')
 const { existsSync } = require('fs')
 
 const important = white().bold
@@ -27,7 +27,7 @@ function errorHandler (err) {
     /(\r?\n)/g,
     '$1      '
   )
-  console.error(red().bold('wrap ') + msg)
+  console.error(`${logcons.cross()} ${red().bold('wrap ')}${msg}`)
   process.exit(1)
 }
 
@@ -88,9 +88,9 @@ async function main () {
     await writeBundle(_inputOptions, _outputOptions)
 
     console.log(
-      `${logSymbols.info} Output written to ${important(_outputOptions.file)}`
+      `${logcons.info()} Output written to ${important(_outputOptions.file)}`
     )
-    console.log(`${logSymbols.success} ${success('Done')}`)
+    console.log(`${logcons.tick()} ${success('Done')}`)
   } catch (err) {
     errorHandler(err)
   }
