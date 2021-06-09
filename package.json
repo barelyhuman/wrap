@@ -17,7 +17,13 @@
   "files": [
     "index.js"
   ],
-  "keywords": [],
+  "keywords": [
+    "bundler",
+    "libraries",
+    "javascript",
+    "rollup",
+    "simple"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
