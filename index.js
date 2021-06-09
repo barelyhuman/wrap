@@ -61,12 +61,15 @@ async function main() {
       );
     }
 
+    const _inputOptions = { ...inputOptions, input: entry };
+
     const _outputOptions = {
       ...outputOptions,
       file: main,
+      banner: pkg.bin ? "#!/usr/bin/env node\n" : null,
     };
 
-    const bundle = await rollup.rollup({ ...inputOptions, input: entry });
+    const bundle = await rollup.rollup(_inputOptions);
     await bundle.generate(_outputOptions);
     await bundle.write(_outputOptions);
     await bundle.close();
