@@ -69,10 +69,24 @@ async function main () {
       banner: pkg.bin ? '#!/usr/bin/env node\n' : null
     }
 
-    const bundle = await rollup.rollup(_inputOptions)
-    await bundle.generate(_outputOptions)
-    await bundle.write(_outputOptions)
-    await bundle.close()
+    if (pkg.exports) {
+      if (typeof pkg.exports !== 'string') {
+        throw new Error(
+          'doesn\'t support a map of exports yet, please use a string to the entry file of the esm instead'
+        )
+      }
+
+      const esmOutputOptions = {
+        ...outputOptions,
+        file: pkg.exports,
+        format: 'esm'
+      }
+
+      await writeBundle(_inputOptions, esmOutputOptions)
+    }
+
+    await writeBundle(_inputOptions, _outputOptions)
+
     console.log(
       `${logSymbols.info} Output written to ${important(_outputOptions.file)}`
     )
@@ -80,6 +94,13 @@ async function main () {
   } catch (err) {
     errorHandler(err)
   }
+}
+
+async function writeBundle (_inputOptions, _outputOptions) {
+  const bundle = await rollup.rollup(_inputOptions)
+  await bundle.generate(_outputOptions)
+  await bundle.write(_outputOptions)
+  await bundle.close()
 }
 
 main()

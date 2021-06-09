@@ -4,6 +4,7 @@
   "description": "Simple library bundler",
   "main": "out/index.js",
   "source": "test/index.js",
+  "exports": "./out/index.esm.js",
   "bin": {
     "wrap": "index.js"
   },
