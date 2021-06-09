@@ -4,7 +4,9 @@
   "description": "Simple library bundler",
   "main": "out/index.js",
   "source": "test/index.js",
-  "bin": "./index.js",
+  "bin": {
+    "wrap": "index.js"
+  },
   "repository": "barelyhuman/wrap",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
