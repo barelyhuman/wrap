@@ -7,12 +7,14 @@ function cli () {
   const argv = process.argv.slice(2)
   const flags = mri(argv, {
     default: {
-      fix: false
+      fix: false,
+      help: false
     },
     alias: {
-      f: 'fix'
+      f: 'fix',
+      h: 'help'
     },
-    boolean: ['f', 'fix'],
+    boolean: ['f', 'fix', 'h', 'help'],
     unknown: (arg) => console.log(usage)
   })
 
@@ -22,6 +24,10 @@ function cli () {
 
   if (flags.fix) {
     return fixer()
+  }
+
+  if (flags.help) {
+    return console.log(usage)
   }
 
   return bundler()
