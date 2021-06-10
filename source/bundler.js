@@ -1,11 +1,9 @@
-#!/usr/bin/env node
-
-const rollup = require('rollup')
-const { babel } = require('@rollup/plugin-babel')
-const { resolve } = require('path')
-const { white, red, green } = require('kleur')
-const { logcons } = require('logcons')
-const { existsSync } = require('fs')
+import rollup from 'rollup'
+import { babel } from '@rollup/plugin-babel'
+import { resolve } from 'path'
+import { white, red, green } from 'kleur'
+import { logcons } from 'logcons'
+import { existsSync } from 'fs'
 
 const important = white().bold
 const success = green().bold
@@ -31,7 +29,7 @@ function errorHandler (err) {
   process.exit(1)
 }
 
-async function main () {
+export const bundler = async () => {
   try {
     const pkgfile = resolve('package.json')
     const pkg = existsSync(pkgfile) && require(pkgfile)
@@ -72,7 +70,7 @@ async function main () {
     if (pkg.exports) {
       if (typeof pkg.exports !== 'string') {
         throw new Error(
-          'doesn\'t support a map of exports yet, please use a string to the entry file of the esm instead'
+          "doesn't support a map of exports yet, please use a string to the entry file of the esm instead"
         )
       }
 
@@ -102,5 +100,3 @@ async function writeBundle (_inputOptions, _outputOptions) {
   await bundle.write(_outputOptions)
   await bundle.close()
 }
-
-main()

@@ -2,20 +2,20 @@
   "name": "@barelyhuman/wrap",
   "version": "0.0.5",
   "description": "Simple library bundler",
-  "main": "out/index.js",
-  "source": "test/index.js",
-  "exports": "./out/index.esm.js",
+  "main": "dist/index.js",
+  "source": "source/index.js",
   "bin": {
-    "wrap": "index.js"
+    "wrap": "dist/index.js"
   },
   "repository": "barelyhuman/wrap",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fix": "standard --fix",
+    "build": "wrap",
     "prepare": "husky install"
   },
   "files": [
-    "index.js"
+    "dist/**"
   ],
   "keywords": [
     "bundler",
@@ -24,7 +24,7 @@
     "rollup",
     "simple"
   ],
-  "author": "",
+  "author": "Reaper <ahoy@barelyhuman.dev>",
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.14.3",
@@ -38,12 +38,22 @@
     "kleur": "^4.1.4",
     "lodash.get": "^4.4.2",
     "logcons": "^0.0.2",
-    "rollup": "^2.51.1"
+    "mri": "^1.1.6",
+    "rollup": "^2.51.1",
+    "standard": "^16.0.3"
   },
   "devDependencies": {
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
-    "standard": "^16.0.3"
+    "@barelyhuman/wrap": "0.0.5"
+  },
+  "standard": {
+    "ignore": [
+      "dist/*"
+    ],
+    "globals": [
+      ""
+    ]
   },
   "lint-staged": {
     "*.js": [
