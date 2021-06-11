@@ -1,6 +1,6 @@
 {
   "name": "@barelyhuman/wrap",
-  "version": "0.0.6-dev.0",
+  "version": "0.0.6-dev.1",
   "description": "Simple library bundler",
   "main": "dist/index.js",
   "source": "source/index.js",
