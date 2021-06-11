@@ -1,6 +1,22 @@
-# wrap
+<h1 align="center">
+  wrap
+</h1>
 
-Simple library bundler
+<p align="center">
+  Simple library bundler
+</p>
+
+<div align="center">
+  <a href="https://npmjs.org/package/@barelyhuman/wrap">
+    <img src="https://badgen.now.sh/npm/v/@barelyhuman/wrap" alt="version" />
+  </a>
+  <a href="https://npmjs.org/package/@barelyhuman/wrap">
+    <img src="https://badgen.now.sh/npm/dm/@barelyhuman/wrap" alt="downloads" />
+  </a>
+  <a href="https://packagephobia.now.sh/result?p=@barelyhuman/wrap">
+    <img src="https://packagephobia.now.sh/badge?p=@barelyhuman/wrap" alt="install size" />
+  </a>
+</div>
 
 ## Pros
 
