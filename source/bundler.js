@@ -49,15 +49,13 @@ export const bundler = async () => {
     }
 
     const mandatoryDeps = ['rollup']
-    let deps = []
+    let deps = ['@babel/core', '@rollup/plugin-babel']
     let useBuble = false
 
     if (pkg.wrap) {
       if (pkg.wrap.buble) {
         useBuble = true
         deps = ['@rollup/plugin-buble']
-      } else {
-        deps = ['@babel/core', '@rollup/plugin-babel']
       }
     }
 
