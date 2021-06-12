@@ -23,6 +23,8 @@
 - No setup needed
 - Configured via package.json
 - Optionally add `.babelrc` to configure babel
+- Can use and configure [buble](buble.surge.sh) (in v0.0.6-dev.2)
+- Passive Dependency installer - does not install dependencies unless needed and if needed, they are added to your devDeps instead, helps keep wrap small and saves disk space for you (in v0.0.6-dev.2)
 
 **_Cons_**
 
@@ -45,7 +47,7 @@ $ wrap # global install
 $ npx wrap # local install
 ```
 
-or you can add it in scripts
+Also add the following to your package.json
 
 ```json
 ...
@@ -57,11 +59,57 @@ or you can add it in scripts
 ...
 ```
 
+#### ClI
+
+```sh
+$ wrap -h
+
+Usage
+    $ wrap [options]
+  Options
+    -f, --fix Run the standard linter and fixer on the current directory
+  Examples
+    $ wrap
+    ℹ Output written to dist/index.js
+    ✔ Done
+```
+
+## Configuration
+
+While you can use `.babelrc` for handling babel and the `standard` key in the package.json can handle the standard configuration there are certain things you might want to send through to wrap.
+
+**package.json**
+
+```jsonc
+"wrap":{
+  "buble":true // use buble instead of babel and uses the below mentioned default settings,
+  "external":["fs","path"] // add external deps here to avoid the warning logs about external deps
+}
+```
+
+You can also send through the full buble configuration through
+
+**package.json**
+
+```jsonc
+"wrap":{
+  "buble":{
+    "transforms": {
+      "asyncAwait": false,
+      "forOf": false
+    },
+    "objectAssign": "Object.assign"
+  }
+}
+```
+
 ### Credits
 
 - [Rollup](https://rollupjs.org/) - Couldn't have done anything without it
 - [lukeed](https://github.com/lukeed) - The libraries `kleur`, `mri` are from him
 - [standard](https://github.com/standard/standard) - Takes the load of formatting and linting the files
+- [buble](https://github.com/bublejs/buble) - the other alternative to babel
+  and a lot of other sub dependecies
 
 ---
 

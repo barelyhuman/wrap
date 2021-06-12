@@ -1,8 +1,10 @@
-import standard from 'standard'
 import { green, red, white, yellow } from 'kleur'
 import { logcons } from 'logcons'
+import { checkAndInstall } from './check-and-install'
 
-export const fixer = () => {
+export const fixer = async () => {
+  await checkAndInstall(['standard'])
+  const standard = require('standard')
   standard.lintFiles(
     [],
     {

@@ -1,65 +1,80 @@
-import rollup from 'rollup'
-import { babel } from '@rollup/plugin-babel'
-import { resolve } from 'path'
-import { white, red, green } from 'kleur'
+import { white, green } from 'kleur'
 import { logcons } from 'logcons'
-import { existsSync } from 'fs'
+import { checkAndInstall } from './check-and-install'
+import { errorHandler } from './error-handler'
+import { resolvePackage } from './resolve-pkg'
 
-const important = white().bold
+const bullet = white().bold
 const success = green().bold
 
 const inputOptions = {
-  plugins: [
-    babel({
-      babelHelpers: 'bundled'
-    })
-  ]
+  plugins: [],
+  external: []
 }
 
 const outputOptions = {
   format: 'cjs'
 }
 
-function errorHandler (err) {
-  const msg = (err.message || err || 'Unknown error').replace(
-    /(\r?\n)/g,
-    '$1      '
-  )
-  console.error(`${logcons.cross()} ${red().bold('wrap ')}${msg}`)
-  process.exit(1)
+const bubleDefaultOptions = {
+  transforms: {
+    asyncAwait: false,
+    forOf: false
+  },
+  objectAssign: 'Object.assign'
 }
 
 export const bundler = async () => {
   try {
-    const pkgfile = resolve('package.json')
-    const pkg = existsSync(pkgfile) && require(pkgfile)
+    const pkg = resolvePackage()
 
-    if (!pkg) {
+    const { source, main, module } = pkg
+
+    const isMissingBaseFields = !(main && source)
+
+    if (isMissingBaseFields) {
       throw new Error(
-        `'package' not found, add a ${important(
-          'package.json'
-        )} to your project`
+        `'package.source' or 'package.main' not found, add ${bullet(
+          'source and main'
+        )} fields to your package.json`
       )
     }
 
-    const entry = pkg.source
-    const main = pkg.main
-    if (!entry) {
-      throw new Error(
-        `'package.source' not found, add a ${important(
-          'source'
-        )} field to your package.json`
-      )
-    }
-    if (!main) {
-      throw new Error(
-        `'package.main' not found, add a ${important(
-          'main'
-        )} field to your package.json`
-      )
+    const externalFromPackage = (pkg.wrap && pkg.wrap.external) || []
+
+    const _inputOptions = {
+      ...inputOptions,
+      input: source,
+      external: [...Object.keys(pkg.dependencies), ...externalFromPackage]
     }
 
-    const _inputOptions = { ...inputOptions, input: entry }
+    const mandatoryDeps = ['rollup']
+    let deps = []
+    let useBuble = false
+
+    if (pkg.wrap) {
+      if (pkg.wrap.buble) {
+        useBuble = true
+        deps = ['@rollup/plugin-buble']
+      } else {
+        deps = ['@babel/core', '@rollup/plugin-babel']
+      }
+    }
+
+    await checkAndInstall([...mandatoryDeps, ...deps])
+    let handler
+    let options = {}
+    if (useBuble) {
+      handler = require('@rollup/plugin-buble')
+      const fromPkg = (pkg.wrap && pkg.wrap.buble) || {}
+      options = { ...bubleDefaultOptions, ...fromPkg }
+    } else {
+      const { babel } = require('@rollup/plugin-babel')
+      handler = babel
+      options = { babelHelpers: 'bundled' }
+    }
+
+    _inputOptions.plugins.push(handler(options))
 
     const _outputOptions = {
       ...outputOptions,
@@ -67,26 +82,24 @@ export const bundler = async () => {
       banner: pkg.bin ? '#!/usr/bin/env node\n' : null
     }
 
-    if (pkg.exports) {
-      if (typeof pkg.exports !== 'string') {
-        throw new Error(
-          "doesn't support a map of exports yet, please use a string to the entry file of the esm instead"
-        )
-      }
-
+    if (module) {
       const esmOutputOptions = {
         ...outputOptions,
-        file: pkg.exports,
+        file: module,
         format: 'esm'
       }
 
       await writeBundle(_inputOptions, esmOutputOptions)
+
+      console.log(
+        `${logcons.info()} Module written to ${bullet(esmOutputOptions.file)}`
+      )
     }
 
     await writeBundle(_inputOptions, _outputOptions)
 
     console.log(
-      `${logcons.info()} Output written to ${important(_outputOptions.file)}`
+      `${logcons.info()} CJS written to ${bullet(_outputOptions.file)}`
     )
     console.log(`${logcons.tick()} ${success('Done')}`)
   } catch (err) {
@@ -95,6 +108,7 @@ export const bundler = async () => {
 }
 
 async function writeBundle (_inputOptions, _outputOptions) {
+  const rollup = require('rollup')
   const bundle = await rollup.rollup(_inputOptions)
   await bundle.generate(_outputOptions)
   await bundle.write(_outputOptions)
