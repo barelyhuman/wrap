@@ -14,7 +14,7 @@
     <img src="https://flat.badgen.now.sh/npm/dm/@barelyhuman/wrap" alt="downloads" />
   </a>
   <a href="https://packagephobia.now.sh/result?p=@barelyhuman/wrap">
-    <img src="https://flat.badgen.net/packagephobia/install/@barelyhuman/wrap" alt="install size" />
+    <img src="https://flat.badgen.net/packagephobia/install/@barelyhuman/wrap?c=n" alt="install size" />
   </a>
 </div>
 
