@@ -8,7 +8,7 @@
 
 <div align="center">
   <a href="https://npmjs.org/package/@barelyhuman/wrap">
-    <img src="https://flat.badgen.now.sh/npm/v/@barelyhuman/wrap" alt="version" />
+    <img src="https://flat.badgen.net/npm/v/@barelyhuman/wrap" alt="version" />
   </a>
   <a href="https://npmjs.org/package/@barelyhuman/wrap">
     <img src="https://flat.badgen.now.sh/npm/dm/@barelyhuman/wrap" alt="downloads" />
