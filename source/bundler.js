@@ -24,7 +24,7 @@ const bubleDefaultOptions = {
   objectAssign: 'Object.assign'
 }
 
-export const bundler = async () => {
+export const bundler = async ({ watch } = {}) => {
   try {
     const pkg = resolvePackage()
 
@@ -80,6 +80,8 @@ export const bundler = async () => {
       banner: pkg.bin ? '#!/usr/bin/env node\n' : null
     }
 
+    const rollupHandler = watch ? watchPackage : writeBundle
+
     if (module) {
       const esmOutputOptions = {
         ...outputOptions,
@@ -87,19 +89,10 @@ export const bundler = async () => {
         format: 'esm'
       }
 
-      await writeBundle(_inputOptions, esmOutputOptions)
-
-      console.log(
-        `${logcons.info()} Module written to ${bullet(esmOutputOptions.file)}`
-      )
+      await rollupHandler(_inputOptions, esmOutputOptions)
     }
 
-    await writeBundle(_inputOptions, _outputOptions)
-
-    console.log(
-      `${logcons.info()} CJS written to ${bullet(_outputOptions.file)}`
-    )
-    console.log(`${logcons.tick()} ${success('Done')}`)
+    await rollupHandler(_inputOptions, _outputOptions)
   } catch (err) {
     errorHandler(err)
   }
@@ -111,4 +104,30 @@ async function writeBundle (_inputOptions, _outputOptions) {
   await bundle.generate(_outputOptions)
   await bundle.write(_outputOptions)
   await bundle.close()
+  console.log(
+    `${logcons.info()} ${
+      _outputOptions.format === 'esm' ? 'ESM' : 'CJS'
+    } written to ${bullet(_outputOptions.file)}`
+  )
+  console.log(`${logcons.tick()} ${success('Done')}`)
+}
+
+async function watchPackage (_inputOptions, _outputOptions) {
+  const rollup = require('rollup')
+  const watchOptions = {
+    ..._inputOptions,
+    output: [_outputOptions]
+  }
+  const watcher = rollup.watch(watchOptions)
+
+  watcher.on('event', ({ result }) => {
+    if (result) {
+      result.close()
+      console.log(
+        `${logcons.info()} ${
+          _outputOptions.format === 'esm' ? 'ESM' : 'CJS'
+        } written to ${bullet(_outputOptions.file)}`
+      )
+    }
+  })
 }

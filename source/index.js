@@ -8,13 +8,15 @@ function cli () {
   const flags = mri(argv, {
     default: {
       fix: false,
-      help: false
+      help: false,
+      watch: false
     },
     alias: {
       f: 'fix',
-      h: 'help'
+      h: 'help',
+      w: 'watch'
     },
-    boolean: ['f', 'fix', 'h', 'help'],
+    boolean: ['f', 'fix', 'h', 'help', 'w', 'watch'],
     unknown: (arg) => console.log(usage)
   })
 
@@ -28,6 +30,10 @@ function cli () {
 
   if (flags.help) {
     return console.log(usage)
+  }
+
+  if (flags.watch) {
+    return bundler({ watch: true })
   }
 
   return bundler()
