@@ -13,7 +13,7 @@
     "fix": "standard --fix",
     "prebuild": "rimraf dist",
     "build": "wrap",
-    "prepare": "husky install"
+    "prepare": "npm run build; chmod +x dist/index.js; husky install"
   },
   "files": [
     "dist/**"
