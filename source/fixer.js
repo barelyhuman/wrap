@@ -1,9 +1,9 @@
 import { green, red, white, yellow } from 'kleur'
 import { logcons } from 'logcons'
-import { checkAndInstall } from './check-and-install'
+import { depdown } from 'depdown'
 
 export const fixer = async () => {
-  await checkAndInstall(['standard'])
+  await depdown(['standard'], { tree: 'dev' })
   const standard = require('standard')
   standard.lintFiles(
     [],

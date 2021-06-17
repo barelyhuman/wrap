@@ -1,6 +1,6 @@
 import { white, green } from 'kleur'
 import { logcons } from 'logcons'
-import { checkAndInstall } from './check-and-install'
+import { depdown } from 'depdown'
 import { errorHandler } from './error-handler'
 import { resolvePackage } from './resolve-pkg'
 
@@ -59,7 +59,7 @@ export const bundler = async ({ watch } = {}) => {
       }
     }
 
-    await checkAndInstall([...mandatoryDeps, ...deps])
+    await depdown([...mandatoryDeps, ...deps], { tree: 'dev' })
     let handler
     let options = {}
     if (useBuble) {
