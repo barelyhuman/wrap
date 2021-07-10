@@ -42,10 +42,12 @@ export const bundler = async ({ watch } = {}) => {
 
     const externalFromPackage = (pkg.wrap && pkg.wrap.external) || []
 
+    const existingDependencies = pkg.dependencies || {}
+
     const _inputOptions = {
       ...inputOptions,
       input: source,
-      external: [...Object.keys(pkg.dependencies), ...externalFromPackage]
+      external: [...Object.keys(existingDependencies), ...externalFromPackage]
     }
 
     const mandatoryDeps = ['rollup']
