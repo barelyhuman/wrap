@@ -6,17 +6,9 @@
   Simple library bundler
 </p>
 
-<div align="center">
-  <a href="https://npmjs.org/package/@barelyhuman/wrap">
-    <img src="https://flat.badgen.net/npm/v/@barelyhuman/wrap" alt="version" />
-  </a>
-  <a href="https://npmjs.org/package/@barelyhuman/wrap">
-    <img src="https://flat.badgen.now.sh/npm/dm/@barelyhuman/wrap" alt="downloads" />
-  </a>
-  <a href="https://packagephobia.now.sh/result?p=@barelyhuman/wrap">
-    <img src="https://flat.badgen.net/packagephobia/install/@barelyhuman/wrap?c=n" alt="install size" />
-  </a>
-</div>
+<p align="center"><a href="https://bundlephobia.com/result?p=@barelyhuman/wrap"><img src="https://img.shields.io/bundlephobia/min/@barelyhuman/wrap?label=bundle%20size&amp;style=flat&amp;colorA=000000&amp;colorB=000000" alt="Build Size"></a>
+<a href="https://www.npmjs.com/package/@barelyhuman/wrap"><img src="https://img.shields.io/npm/v/@barelyhuman/wrap?style=flat&amp;colorA=000000&amp;colorB=000000" alt="Version"></a>
+<a href="https://www.npmjs.com/package/@barelyhuman/wrap"><img src="https://img.shields.io/npm/dt/@barelyhuman/wrap.svg?style=flat&amp;colorA=000000&amp;colorB=000000" alt="Downloads"></a></p>
 
 ## Pros
 
