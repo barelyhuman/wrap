@@ -36,7 +36,7 @@ function printLinterErrors (results) {
 
 function formatMessage (resultItem, file) {
   console.log(
-    `${red().bold('wrap-fixer')} ${white().bold(file.filePath)}${
+    `${red().bold('wrap-fixer')} ${white().bold(file.filePath)}:${
       resultItem.line
     }:${resultItem.column} - ${resultItem.ruleId}`
   )
