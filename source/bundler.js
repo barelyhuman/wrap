@@ -16,6 +16,12 @@ const outputOptions = {
   format: 'cjs'
 }
 
+const terserDefaultOptions = {
+  compress: {
+    passes: 10
+  }
+}
+
 const bubleDefaultOptions = {
   transforms: {
     asyncAwait: false,
@@ -24,7 +30,7 @@ const bubleDefaultOptions = {
   objectAssign: 'Object.assign'
 }
 
-export const bundler = async ({ watch } = {}) => {
+export const bundler = async ({ watch, minify } = { minify: true }) => {
   try {
     const pkg = resolvePackage()
 
@@ -50,7 +56,7 @@ export const bundler = async ({ watch } = {}) => {
       external: [...Object.keys(existingDependencies), ...externalFromPackage]
     }
 
-    const mandatoryDeps = ['rollup']
+    const mandatoryDeps = ['rollup', 'rollup-plugin-terser']
     let deps = ['@babel/core', '@rollup/plugin-babel']
     let useBuble = false
 
@@ -75,6 +81,13 @@ export const bundler = async ({ watch } = {}) => {
     }
 
     _inputOptions.plugins.push(handler(options))
+
+    if (minify) {
+      const { terser } = require('rollup-plugin-terser')
+      const options = (pkg.wrap && pkg.wrap.terser) || terserDefaultOptions
+
+      _inputOptions.plugins.push(terser(options))
+    }
 
     const _outputOptions = {
       ...outputOptions,

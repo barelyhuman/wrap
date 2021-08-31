@@ -33,7 +33,7 @@ function cli () {
   }
 
   if (flags.watch) {
-    return bundler({ watch: true })
+    return bundler({ watch: true, minify: false })
   }
 
   return bundler()
