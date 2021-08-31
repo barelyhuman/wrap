@@ -1,6 +1,6 @@
 {
   "name": "@barelyhuman/wrap",
-  "version": "0.0.8-0",
+  "version": "0.0.8-1",
   "description": "Simple library bundler",
   "main": "dist/index.js",
   "source": "source/index.js",
@@ -13,7 +13,8 @@
     "fix": "standard --fix",
     "prebuild": "rimraf dist",
     "build": "wrap",
-    "prepare": "npm run build; chmod +x dist/index.js; husky install"
+    "prepare": "npm run build; chmod +x dist/index.js; husky install",
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "dist/**"
