@@ -69,7 +69,8 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
       if (pkg.wrap.typescript) {
         supportTS = true
         deps.push('typescript')
-        deps.push('rollup-plugin-esbuild')
+        deps.push('@rollup/plugin-typescript')
+        deps.push('tslib')
       }
     }
 
@@ -79,8 +80,13 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
     const { transpiler, options } = getTranspilerAndOptions(pkg, useBuble)
 
     if (supportTS) {
-      const esbuild = require('rollup-plugin-esbuild')
-      _inputOptions.plugins.push(esbuild(pkg.wrap.typescript))
+      const typescript = require('@rollup/plugin-typescript')
+      let tsconfig
+      if (typeof pkg.wrap.typescript === 'object') {
+        tsconfig = pkg.wrap.typescript
+      }
+
+      _inputOptions.plugins.push(typescript(tsconfig))
     } else {
       _inputOptions.plugins.push(transpiler(options))
     }
