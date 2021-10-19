@@ -59,28 +59,31 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
     const mandatoryDeps = ['rollup', 'rollup-plugin-terser']
     let deps = ['@babel/core', '@rollup/plugin-babel']
     let useBuble = false
+    let supportTS = false
 
     if (pkg.wrap) {
       if (pkg.wrap.buble) {
         useBuble = true
         deps = ['@rollup/plugin-buble']
       }
+      if (pkg.wrap.typescript) {
+        supportTS = true
+        deps.push('typescript')
+        deps.push('rollup-plugin-esbuild')
+      }
     }
 
+    // Install needed dependencies
     await depdown([...mandatoryDeps, ...deps], { tree: 'dev' })
-    let handler
-    let options = {}
-    if (useBuble) {
-      handler = require('@rollup/plugin-buble')
-      const fromPkg = (pkg.wrap && pkg.wrap.buble) || {}
-      options = { ...bubleDefaultOptions, ...fromPkg }
-    } else {
-      const { babel } = require('@rollup/plugin-babel')
-      handler = babel
-      options = { babelHelpers: 'bundled' }
-    }
 
-    _inputOptions.plugins.push(handler(options))
+    const { transpiler, options } = getTranspilerAndOptions(pkg, useBuble)
+
+    if (supportTS) {
+      const esbuild = require('rollup-plugin-esbuild')
+      _inputOptions.plugins.push(esbuild(pkg.wrap.typescript))
+    } else {
+      _inputOptions.plugins.push(transpiler(options))
+    }
 
     if (minify) {
       const { terser } = require('rollup-plugin-terser')
@@ -145,4 +148,19 @@ async function watchPackage (_inputOptions, _outputOptions) {
       )
     }
   })
+}
+
+function getTranspilerAndOptions (pkg, useBuble) {
+  let transpiler
+  let options = {}
+  if (useBuble) {
+    transpiler = require('@rollup/plugin-buble')
+    const fromPkg = (pkg.wrap && pkg.wrap.buble) || {}
+    options = { ...bubleDefaultOptions, ...fromPkg }
+  } else {
+    const { babel } = require('@rollup/plugin-babel')
+    transpiler = babel
+    options = { babelHelpers: 'bundled' }
+  }
+  return { transpiler, options }
 }
