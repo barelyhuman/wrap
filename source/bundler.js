@@ -1,33 +1,36 @@
-import { white, green } from 'kleur'
-import { logcons } from 'logcons'
 import { depdown } from 'depdown'
+import { reset, white } from 'kleur'
+import { logcons } from 'logcons'
+import { resolve } from 'path'
+import { SizeSnap } from 'sizesnap'
 import { errorHandler } from './error-handler'
 import { resolvePackage } from './resolve-pkg'
+import Spinner from './spinner'
 
+const info = reset().cyan
 const bullet = white().bold
-const success = green().bold
+const success = reset().green().bold
+const sizesnap = new SizeSnap()
+const infoIcon = logcons.info((c) => info(c))
+const bundleSpinner = Spinner({ message: 'Bundling...', color: info })
+const watchSpinner = Spinner({ message: 'Watching...', color: info })
 
-const inputOptions = {
-  plugins: [],
-  external: []
-}
-
-const outputOptions = {
-  format: 'cjs'
-}
-
-const terserDefaultOptions = {
-  compress: {
-    passes: 10
-  }
-}
-
-const bubleDefaultOptions = {
-  transforms: {
-    asyncAwait: false,
-    forOf: false
+const defaultOptions = {
+  rollup: {
+    input: {
+      plugins: [],
+      external: []
+    },
+    output: {
+      format: 'cjs'
+    }
   },
-  objectAssign: 'Object.assign'
+  terser: {
+    compress: {
+      passes: 10
+    },
+    mangle: true
+  }
 }
 
 export const bundler = async ({ watch, minify } = { minify: true }) => {
@@ -46,26 +49,26 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
       )
     }
 
-    const externalFromPackage = (pkg.wrap && pkg.wrap.external) || []
+    const externalPackages = (pkg.wrap && pkg.wrap.external) || []
+    const inferExternalPackages = (pkg.wrap && pkg.wrap.inferExternal) || []
 
-    const existingDependencies = pkg.dependencies || {}
+    const currentDeps = pkg.dependencies || {}
 
-    const _inputOptions = {
-      ...inputOptions,
+    const inputOptions = {
+      ...defaultOptions.rollup.input,
       input: source,
-      external: [...Object.keys(existingDependencies), ...externalFromPackage]
+      external: [...Object.keys(currentDeps), ...externalPackages]
     }
 
     const mandatoryDeps = ['rollup', 'rollup-plugin-terser']
-    let deps = ['@babel/core', '@rollup/plugin-babel']
-    let useBuble = false
+    const deps = ['@babel/core', '@rollup/plugin-babel']
     let supportTS = false
 
+    if (inferExternalPackages) {
+      deps.push('rollup-plugin-node-externals')
+    }
+
     if (pkg.wrap) {
-      if (pkg.wrap.buble) {
-        useBuble = true
-        deps = ['@rollup/plugin-buble']
-      }
       if (pkg.wrap.typescript) {
         supportTS = true
         deps.push('typescript')
@@ -77,46 +80,73 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
     // Install needed dependencies
     await depdown([...mandatoryDeps, ...deps], { tree: 'dev' })
 
-    const { transpiler, options } = getTranspilerAndOptions(pkg, useBuble)
+    bundleSpinner.start()
+
+    const { transpiler, options } = getTranspilerAndOptions()
 
     if (supportTS) {
       const typescript = require('@rollup/plugin-typescript')
       let tsconfig
+
+      // has config directly here
       if (typeof pkg.wrap.typescript === 'object') {
         tsconfig = pkg.wrap.typescript
       }
-
-      _inputOptions.plugins.push(typescript(tsconfig))
+      // path to config
+      if (typeof pkg.wrap.typescript === 'string') {
+        tsconfig = resolve(pkg.wrap.typescript) && require(pkg.wrap.typescript)
+      }
+      inputOptions.plugins.push(typescript(tsconfig))
     } else {
-      _inputOptions.plugins.push(transpiler(options))
+      inputOptions.plugins.push(transpiler(options))
     }
 
     if (minify) {
       const { terser } = require('rollup-plugin-terser')
-      const options = (pkg.wrap && pkg.wrap.terser) || terserDefaultOptions
-
-      _inputOptions.plugins.push(terser(options))
+      const options = (pkg.wrap && pkg.wrap.terser) || defaultOptions.terser
+      inputOptions.plugins.push(terser(options))
     }
 
-    const _outputOptions = {
-      ...outputOptions,
-      file: main,
-      banner: pkg.bin ? '#!/usr/bin/env node\n' : null
+    const bundlerOptions = [
+      {
+        ...defaultOptions.rollup.output,
+        file: main,
+        banner: pkg.bin ? '#!/usr/bin/env node\n' : null
+      }
+    ]
+
+    if (module) {
+      bundlerOptions.push({
+        ...defaultOptions.rollup.output,
+        file: module,
+        format: 'esm'
+      })
+    }
+
+    if (inferExternalPackages) {
+      const externals = require('rollup-plugin-node-externals')
+      inputOptions.plugins.push(externals())
     }
 
     const rollupHandler = watch ? watchPackage : writeBundle
 
-    if (module) {
-      const esmOutputOptions = {
-        ...outputOptions,
-        file: module,
-        format: 'esm'
-      }
+    await Promise.all(
+      bundlerOptions.map((config) => {
+        return rollupHandler(inputOptions, config)
+      })
+    )
 
-      await rollupHandler(_inputOptions, esmOutputOptions)
-    }
+    bundleSpinner.stop(success(logcons.tick() + ' Compiled'))
 
-    await rollupHandler(_inputOptions, _outputOptions)
+    const files = bundlerOptions.map((x) => x.file)
+
+    await sizesnap
+      .sizeFiles(files)
+      .generateSnapshot()
+      .tablePrint()
+      .onDone(() => {
+        console.log(`Files written ${bullet(files.join(','))}`)
+      })
   } catch (err) {
     errorHandler(err)
   }
@@ -128,45 +158,30 @@ async function writeBundle (_inputOptions, _outputOptions) {
   await bundle.generate(_outputOptions)
   await bundle.write(_outputOptions)
   await bundle.close()
-  console.log(
-    `${logcons.info()} ${
-      _outputOptions.format === 'esm' ? 'ESM' : 'CJS'
-    } written to ${bullet(_outputOptions.file)}`
-  )
-  console.log(`${logcons.tick()} ${success('Done')}`)
 }
 
 async function watchPackage (_inputOptions, _outputOptions) {
+  watchSpinner.start()
   const rollup = require('rollup')
   const watchOptions = {
     ..._inputOptions,
     output: [_outputOptions]
   }
   const watcher = rollup.watch(watchOptions)
-
   watcher.on('event', ({ result }) => {
-    if (result) {
-      result.close()
-      console.log(
-        `${logcons.info()} ${
-          _outputOptions.format === 'esm' ? 'ESM' : 'CJS'
-        } written to ${bullet(_outputOptions.file)}`
-      )
+    if (!result) {
+      return
     }
+    watchSpinner.stop()
+    console.log(`${infoIcon} Compiled ${bullet(_outputOptions.file)}`)
+    watchSpinner.start()
+    result.close()
   })
 }
 
-function getTranspilerAndOptions (pkg, useBuble) {
-  let transpiler
-  let options = {}
-  if (useBuble) {
-    transpiler = require('@rollup/plugin-buble')
-    const fromPkg = (pkg.wrap && pkg.wrap.buble) || {}
-    options = { ...bubleDefaultOptions, ...fromPkg }
-  } else {
-    const { babel } = require('@rollup/plugin-babel')
-    transpiler = babel
-    options = { babelHelpers: 'bundled' }
-  }
+function getTranspilerAndOptions () {
+  const { babel } = require('@rollup/plugin-babel')
+  const transpiler = babel
+  const options = { babelHelpers: 'bundled' }
   return { transpiler, options }
 }
