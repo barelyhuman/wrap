@@ -1,7 +1,6 @@
 import { depdown } from 'depdown'
 import { reset, white } from 'kleur'
 import { logcons } from 'logcons'
-import { resolve } from 'path'
 import { SizeSnap } from 'sizesnap'
 import { errorHandler } from './error-handler'
 import { resolvePackage } from './resolve-pkg'
@@ -33,13 +32,17 @@ const defaultOptions = {
   }
 }
 
-export const bundler = async ({ watch, minify } = { minify: true }) => {
+export const bundler = async (
+  { watch, input: inputFile, minify } = { minify: true }
+) => {
   try {
     const pkg = resolvePackage()
 
     const { source, main, module } = pkg
 
-    const isMissingBaseFields = !(main && source)
+    inputFile = inputFile || source
+
+    const isMissingBaseFields = !(main && inputFile)
 
     if (isMissingBaseFields) {
       throw new Error(
@@ -56,7 +59,7 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
 
     const inputOptions = {
       ...defaultOptions.rollup.input,
-      input: source,
+      input: inputFile,
       external: [...Object.keys(currentDeps), ...externalPackages]
     }
 
@@ -86,17 +89,20 @@ export const bundler = async ({ watch, minify } = { minify: true }) => {
 
     if (supportTS) {
       const typescript = require('@rollup/plugin-typescript')
-      let tsconfig
+      let tsOptions = {}
 
       // has config directly here
       if (typeof pkg.wrap.typescript === 'object') {
-        tsconfig = pkg.wrap.typescript
+        tsOptions = pkg.wrap.typescript
       }
+
       // path to config
       if (typeof pkg.wrap.typescript === 'string') {
-        tsconfig = resolve(pkg.wrap.typescript) && require(pkg.wrap.typescript)
+        tsOptions = {
+          tsconfig: pkg.wrap.typescript
+        }
       }
-      inputOptions.plugins.push(typescript(tsconfig))
+      inputOptions.plugins.push(typescript(tsOptions))
     } else {
       inputOptions.plugins.push(transpiler(options))
     }

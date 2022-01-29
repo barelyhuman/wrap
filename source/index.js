@@ -9,9 +9,11 @@ function cli () {
     default: {
       fix: false,
       help: false,
-      watch: false
+      watch: false,
+      input: ''
     },
     alias: {
+      i: 'input',
       f: 'fix',
       h: 'help',
       w: 'watch'
@@ -33,10 +35,10 @@ function cli () {
   }
 
   if (flags.watch) {
-    return bundler({ watch: true, minify: false })
+    return bundler({ watch: true, input: flags.input, minify: false })
   }
 
-  return bundler()
+  return bundler({ input: flags.input })
 }
 
 cli()
