@@ -1,5 +1,5 @@
 {
-  "name": "test",
-  "source": "index.js",
-  "main": "out/index.js"
+	"name": "test",
+	"source": "index.js",
+	"main": "out/index.js"
 }
