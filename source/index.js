@@ -10,17 +10,21 @@ function cli () {
       fix: false,
       help: false,
       watch: false,
+      minify: false,
       input: ''
     },
     alias: {
       i: 'input',
       f: 'fix',
       h: 'help',
-      w: 'watch'
+      w: 'watch',
+      m: 'minify'
     },
-    boolean: ['f', 'fix', 'h', 'help', 'w', 'watch'],
+    boolean: ['f', 'fix', 'h', 'help', 'w', 'watch', 'm', 'minify'],
     unknown: (arg) => console.log(usage)
   })
+
+  const opts = { input: flags.input, minify: flags.minify }
 
   if (!flags) {
     return process.exit(1)
@@ -35,10 +39,10 @@ function cli () {
   }
 
   if (flags.watch) {
-    return bundler({ watch: true, input: flags.input, minify: false })
+    opts.watch = true
   }
 
-  return bundler({ input: flags.input })
+  return bundler({ ...opts })
 }
 
 cli()

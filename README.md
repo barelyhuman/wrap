@@ -14,6 +14,7 @@ In detail, it tries to do the following.
 
 - Setup rollup with the needed plugins for package development
 - Handle adding a code style to the repo, either with `standard` or `prettier`
+- Minify the output and print size of the output
 - Support configuration with the original configuration options of the tools used (so `.babelrc` for babel, `.prettierrc` for prettier, etc)
 
 ## Pros
