@@ -43,7 +43,7 @@
     "mri": "^1.1.6",
     "once": "^1.4.0",
     "signal-exit": "^3.0.6",
-    "sizesnap": "^0.1.0"
+    "sizesnap-lite": "^0.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

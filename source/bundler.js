@@ -1,7 +1,7 @@
 import { depdown } from 'depdown'
 import { reset, white } from 'kleur'
 import { logcons } from 'logcons'
-import { SizeSnap } from 'sizesnap'
+import sizesnap from 'sizesnap-lite'
 import { errorHandler } from './error-handler'
 import { resolvePackage } from './resolve-pkg'
 import Spinner from './spinner'
@@ -9,7 +9,6 @@ import Spinner from './spinner'
 const info = reset().cyan
 const bullet = white().bold
 const success = reset().green().bold
-const sizesnap = new SizeSnap()
 const infoIcon = logcons.info((c) => info(c))
 const bundleSpinner = Spinner({ message: 'Bundling...', color: info })
 const watchSpinner = Spinner({ message: 'Watching...', color: info })
@@ -142,17 +141,15 @@ export const bundler = async (
       })
     )
 
-    bundleSpinner.stop(success(logcons.tick() + ' Compiled'))
+    const sizingPromises = []
+    bundleSpinner.stop(success('>> Bundled\n'))
+    const files = bundlerOptions.map((x) => {
+      sizingPromises.push(sizesnap(x.file).then(console.log))
+      return x.file
+    })
 
-    const files = bundlerOptions.map((x) => x.file)
-
-    await sizesnap
-      .sizeFiles(files)
-      .generateSnapshot()
-      .tablePrint()
-      .onDone(() => {
-        console.log(`Files written ${bullet(files.join(','))}`)
-      })
+    await Promise.all(sizingPromises)
+    console.log(`\nFiles written ${bullet(files.join(', '))}\n`)
   } catch (err) {
     errorHandler(err)
   }
