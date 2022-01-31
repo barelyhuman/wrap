@@ -3,41 +3,38 @@ import { existsSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
 import { green, red, reset, white, yellow } from 'kleur'
 import { logcons } from 'logcons'
-import { resolvePackage } from './resolve-pkg'
 
 const info = reset().cyan
 const bullet = white().bold
+const dim = reset().dim
 
-export const fixer = async () => {
-  const pkg = resolvePackage()
-  const typescriptEnabled = (pkg.wrap && pkg.wrap.typescript) || false
-
-  if (!typescriptEnabled) {
-    console.log(
-      info(
-        `Typescript is enabled, checking if ${bullet(
-          'prettier'
-        )} is installed...`
+export const fixer = async ({ style = 'standard' }) => {
+  switch (style) {
+    case 'standard': {
+      await depdown(['standard'], { tree: 'dev' })
+      useStandard()
+      break
+    }
+    case 'prettier': {
+      console.log(dim('Setting up prettier '))
+      await depdown(['prettier'], { tree: 'dev' })
+      console.log(
+        dim(`Adding prettier scripts to your ${bullet('package.json')}`)
       )
-    )
-    await depdown(['prettier'], { tree: 'dev' })
-  } else {
-    await depdown(['standard'], { tree: 'dev' })
+      await writePrettierDefaults('.prettierrc')
+      await addPrettierToScripts('package.json')
+      console.log(
+        info(
+          `Added prettier to scripts, you can now use ${bullet(
+            'yarn fix'
+          )} or ${bullet('npm run fix')} to run the formatter`
+        )
+      )
+      break
+    }
   }
 
-  if (!typescriptEnabled) {
-    useStandard()
-    return
-  }
-
-  console.log(
-    info(`Adding prettier scripts to your ${bullet('package.json')}`)
-  )
-
-  await writePrettierDefaults('.prettierrc')
-  await addPrettierToScripts('package.json')
-
-  console.log(bullet('Use `yarn fix` or `npm run fix` instead'))
+  process.exit(0)
 }
 
 async function addPrettierToScripts (file) {
@@ -45,8 +42,10 @@ async function addPrettierToScripts (file) {
   fileData = JSON.parse(fileData.toString())
   fileData.scripts = fileData.scripts || {}
   fileData.scripts.fix =
-    (fileData.scripts.fix.length ? fileData.scripts.fix + ';' : '') +
-    'prettier --write .'
+    (fileData.scripts.fix.length ? fileData.scripts.fix + ';' : '').replace(
+      /(;prettier --write .)/g,
+      ''
+    ) + 'prettier --write .'
 
   await writeFile(file, JSON.stringify(fileData, null, 2))
 }
@@ -57,7 +56,7 @@ async function writePrettierDefaults (file) {
     semi: false,
     singleQuote: true,
     trailingComma: 'es5',
-    useTabs: true
+    useTabs: false
   }
 
   if (existsSync(file)) {

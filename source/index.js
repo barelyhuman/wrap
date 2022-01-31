@@ -11,7 +11,8 @@ function cli () {
       help: false,
       watch: false,
       minify: false,
-      input: ''
+      input: '',
+      style: 'standard'
     },
     alias: {
       i: 'input',
@@ -31,7 +32,7 @@ function cli () {
   }
 
   if (flags.fix) {
-    return fixer()
+    return fixer({ style: flags.style })
   }
 
   if (flags.help) {
