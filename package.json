@@ -14,6 +14,7 @@
     "fix": "standard --fix",
     "prebuild": "rimraf dist",
     "build": "wrap",
+    "size": "sizesnap",
     "prepare": "npm run build; chmod +x dist/index.js; husky install",
     "prepublishOnly": "npm run build"
   },
@@ -37,11 +38,11 @@
     "depdown": "^0.0.3",
     "elegant-spinner": "2",
     "indent-string": "^4",
-    "kleur": "^4.1.4",
     "log-update": "^4.0.0",
     "logcons": "^0.0.4",
     "mri": "^1.1.6",
     "once": "^1.4.0",
+    "picocolors": "^1.0.0",
     "signal-exit": "^3.0.6",
     "sizesnap-lite": "^0.0.3"
   },
@@ -55,6 +56,7 @@
     "rollup": "^2.56.3",
     "rollup-plugin-node-externals": "^3.1.2",
     "rollup-plugin-terser": "^7.0.2",
+    "sizesnap": "^0.1.0",
     "standard": "^16.0.3"
   },
   "standard": {
@@ -68,6 +70,11 @@
   "lint-staged": {
     "*.js": [
       "standard --fix"
+    ]
+  },
+  "sizesnap": {
+    "files": [
+      "dist/*"
     ]
   }
 }

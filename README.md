@@ -114,13 +114,8 @@ I'm still ideating on modifying things here and there and that means tests that 
 
 ### Credits
 
-There's definitely a lot of deps and things that wrap uses and I might not be able to keep track of work that I'm using so please let me know if your name isn't here
-
-- [Rollup](https://rollupjs.org/) - Couldn't have done anything without it
-- [lukeed](https://github.com/lukeed) - The libraries `kleur`, `mri` are from him
-- [standard](https://github.com/standard/standard) - Takes the load of formatting and linting the files
-- [buble](https://github.com/bublejs/buble) - the other alternative to babel
-  and a lot of other sub dependecies
+To all creators that the lib depends on, THANKS A TON!
+I'm trying to sponsor and help back as much as I can, keep doing the good work.
 
 ## License
 

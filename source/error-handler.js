@@ -1,4 +1,4 @@
-import { red } from 'kleur'
+import { red } from 'picocolors'
 import { logcons } from 'logcons'
 
 export function errorHandler (err) {

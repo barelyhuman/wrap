@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import { existsSync } from 'fs'
-import { white } from 'kleur'
+import { white } from 'picocolors'
 
 const bullet = white().bold
 

@@ -1,12 +1,11 @@
 import { depdown } from 'depdown'
 import { existsSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
-import { green, red, reset, white, yellow } from 'kleur'
+import { green, red, white, yellow, cyan, bold, dim } from 'picocolors'
 import { logcons } from 'logcons'
 
-const info = reset().cyan
-const bullet = white().bold
-const dim = reset().dim
+const info = cyan
+const bullet = (x) => bold(white(x))
 
 export const fixer = async ({ style = 'standard' }) => {
   switch (style) {

@@ -1,14 +1,14 @@
 import { depdown } from 'depdown'
-import { reset, white } from 'kleur'
 import { logcons } from 'logcons'
+import pc from 'picocolors'
 import sizesnap from 'sizesnap-lite'
 import { errorHandler } from './error-handler'
 import { resolvePackage } from './resolve-pkg'
 import Spinner from './spinner'
 
-const info = reset().cyan
-const bullet = white().bold
-const success = reset().green().bold
+const info = pc.cyan
+const bullet = pc.bold
+const success = (x) => pc.reset(pc.green(x))
 const infoIcon = logcons.info((c) => info(c))
 const bundleSpinner = Spinner({ message: 'Bundling...', color: info })
 const watchSpinner = Spinner({ message: 'Watching...', color: info })
@@ -52,7 +52,7 @@ export const bundler = async (
     }
 
     const externalPackages = (pkg.wrap && pkg.wrap.external) || []
-    const inferExternalPackages = (pkg.wrap && pkg.wrap.inferExternal) || []
+    const inferExternalPackages = (pkg.wrap && pkg.wrap.inferExternal) || false
 
     const currentDeps = pkg.dependencies || {}
 
